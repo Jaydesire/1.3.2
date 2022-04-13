@@ -1,8 +1,6 @@
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -17,6 +15,7 @@ public class Main {
         GameProgress save3 = new GameProgress(75, 8, 21, 626.3);
 
         ArrayList<GameProgress> savesList = new ArrayList<>();
+        ArrayList<String> pathToSavegameList = new ArrayList<>();
         savesList.add(save1);
         savesList.add(save2);
         savesList.add(save3);
@@ -30,30 +29,43 @@ public class Main {
             try (FileOutputStream saveFos = new FileOutputStream(pathToSavegamesFolder + "/save" + (i + 1) + ".dat");
                  ObjectOutputStream saveOos = new ObjectOutputStream(saveFos)) {
                 saveOos.writeObject(savesList.get(i));
+                pathToSavegameList.add(pathToSavegamesFolder + "/save" + (i + 1) + ".dat");
+
             } catch (Exception e) {
                 System.out.println(e.getStackTrace());
             }
 
         }
 
-        try {
-            ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(pathToSavegamesFolder + "/Save.zip"));
-            ArrayList<byte[]> bufferList = new ArrayList<>(); //Колхоз
+        zipFiles(pathToSavegamesFolder, pathToSavegameList);
+    }
 
+    //метод zipFiles(), принимающий в качестве аргументов String полный путь к файлу архива
+    //и список запаковываемых объектов в виде списка строчек String полного пути к файлу
+
+    static void zipFiles(String path, ArrayList<String> savesList) {
+        try {
+            ZipOutputStream zipOutputStream = new ZipOutputStream(
+                    new FileOutputStream(path + "/zipFile.zip"));
             for (int i = 0; i < savesList.size(); i++) {
-                FileInputStream saveFis = new FileInputStream(pathToSavegamesFolder + "/save" + (i + 1) + ".dat");
-                ZipEntry entry = new ZipEntry("packed_save" + (i + 1) + ".dat");
-                zipOutputStream.putNextEntry(entry);
-                bufferList.add(new byte[saveFis.available()]);
-                saveFis.read(bufferList.get(i));
-                zipOutputStream.write(bufferList.get(i));
-                zipOutputStream.closeEntry();
+                FileInputStream fileInputStream = new FileInputStream(savesList.get(i));
+
+                zipOutputStream.putNextEntry(
+                        new ZipEntry(savesList.get(i).substring(path.length() + 1))); // +1  символ '/'
+
+                byte[] boofer = new byte[1024];
+                fileInputStream.read(boofer);
+                zipOutputStream.write(boofer);
+                fileInputStream.close();
+                zipOutputStream.flush();
             }
+            zipOutputStream.closeEntry();
+            zipOutputStream.close();
+            System.out.println("Create zipFile.zip - DONE");
         } catch (Exception e) {
-            System.out.println(e.getStackTrace());
             System.out.println(e.getMessage());
         }
-
-
     }
 }
+
+
