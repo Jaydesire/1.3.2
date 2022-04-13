@@ -18,7 +18,6 @@ public class Main {
         ArrayList<GameProgress> savesList = new ArrayList<>();
         ArrayList<String> pathToSavegameList = new ArrayList<>();
 
-
         savesList.add(save1);
         savesList.add(save2);
         savesList.add(save3);
@@ -26,8 +25,6 @@ public class Main {
         pathToSavegameList.add(pathToSavegamesFolder + "/save1.dat");
         pathToSavegameList.add(pathToSavegamesFolder + "/save2.dat");
         pathToSavegameList.add(pathToSavegamesFolder + "/save3.dat");
-
-
 
         saveGame(pathToSavegamesFolder, savesList);
 
